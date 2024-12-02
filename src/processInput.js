@@ -1,6 +1,7 @@
 import fileSystem from "fs";
 import fileSystemPath from "path";
 import csvParser from "csv-parser";
+import { parsePickLocation } from "../src/utils.js";
 
 export default function processInput(filePath) {
   const csvData = [];
@@ -38,12 +39,8 @@ export default function processInput(filePath) {
       return false;
     }
 
-    // Validate pick location (Alphanumeric, first part alphabet, second part 1-10)
-    const pickLocationRegex = /^[A-Za-z]+\s[1-9]$|^[A-Za-z]+\s10$/;
-    if (
-      !csvRow.pick_location ||
-      !pickLocationRegex.test(String(csvRow.pick_location).trim())
-    ) {
+    // Validate pick location
+    if (!csvRow.pick_location || !parsePickLocation(csvRow.pick_location)) {
       return false;
     }
 
@@ -65,7 +62,6 @@ export default function processInput(filePath) {
     } else {
       csvErrorCount++;
       csvErrorRows.push(csvTotalCount);
-      console.log("Row error:", csvRow);
     }
   }
 
@@ -97,33 +93,35 @@ export default function processInput(filePath) {
       }
 
       // Start CSV parsing
+      console.info("\n- Reading csv file & rows");
       fileSystem
         .createReadStream(filePath)
         .pipe(csvParser())
 
+        // Process column headings
+        .on("headers", (headers) => {
+          const requiredHeaders = ["product_code", "quantity", "pick_location"];
+          const allHeadingExist = requiredHeaders.every((item) =>
+            headers.includes(item)
+          );
+          if (!allHeadingExist) {
+            reject({
+              type: "FILE_ERROR_004",
+              message: `CSV column headings are required: ${filePath}`,
+            });
+          }
+        })
+
         // Process each line
         .on("data", (csvRow) => {
           rowIndex++;
-          if (rowIndex <= 0) {
-            if (
-              !csvRow.product_code ||
-              !csvRow.quantity ||
-              !csvRow.pick_location
-            ) {
-              reject({
-                type: "FILE_ERROR_004",
-                message: `CSV column headings are required: ${filePath}`,
-              });
-            }
-          } else {
-            processRow(csvRow);
-          }
+          processRow(csvRow);
         })
 
         // Process completed
         .on("end", () => {
           console.info(
-            `\n\n- Completed reading csv. \nTotal rows: ${csvTotalCount}. \nError rows count: ${csvErrorCount}. \nError on row(s): [${csvErrorRows.join()}]`
+            `Total rows: ${csvTotalCount}. \nError rows count: ${csvErrorCount}. \nError on row(s): [${csvErrorRows.join()}]`
           );
           resolve(csvData);
         })
