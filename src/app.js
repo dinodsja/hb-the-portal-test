@@ -21,10 +21,18 @@ const rl = readline.createInterface({
 const startProcess = (inputPath, outputPath) => {
   processInput(inputPath)
     .then((inputData) => {
+      const processStartTime = performance.now();
       const outputData = processData(inputData);
+      const processEndTime = performance.now();
+      const timeInSeconds = (
+        (processEndTime - processStartTime) /
+        1000
+      ).toFixed(4);
       processOutput(outputData, outputPath)
         .then(() => {
-          console.info("\nSuccessfully completed");
+          console.info(
+            `Processed ${inputData.length} rows in ${timeInSeconds} seconds`
+          );
           console.info(`Output file: ${outputPath}`);
         })
         .catch((error) => {
