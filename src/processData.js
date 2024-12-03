@@ -51,6 +51,12 @@ export default function processData(inputData) {
     });
   }
 
+  // Validate
+  if (!inputData || !inputData.length || !Array.isArray(inputData)) {
+    console.error("Invalid input array!");
+    return [];
+  }
+
   console.info("\n- Grouping products and quantity");
   const groupedData = doGrouping(inputData);
   console.info(
