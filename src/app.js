@@ -16,7 +16,7 @@ const app = async () => {
       const outputData = processData(inputData);
       processOutput(outputData, defaultOutputPath)
         .then(() => {
-          console.info(`\nSuccessfully completed`);
+          console.info("\nSuccessfully completed");
           console.info(`Output file: ${defaultOutputPath}`);
         })
         .catch((error) => {

@@ -7,10 +7,9 @@ export default function processInput(filePath) {
   const csvData = [];
 
   // Setting inital values
-  let rowIndex = -1;
   let csvTotalCount = 0;
   let csvErrorCount = 0;
-  let csvErrorRows = [];
+  const csvErrorRows = [];
 
   /**
    * Function to validate each row of csv
@@ -114,7 +113,6 @@ export default function processInput(filePath) {
 
         // Process each line
         .on("data", (csvRow) => {
-          rowIndex++;
           processRow(csvRow);
         })
 
