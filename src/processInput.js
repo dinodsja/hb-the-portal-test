@@ -65,6 +65,13 @@ export default function processInput(filePath) {
   }
 
   return new Promise((resolve, reject) => {
+    if (!filePath) {
+      return reject({
+        type: "FILE_ERROR_000",
+        message: "File path required",
+      });
+    }
+
     fileSystem.stat(filePath, (err, stats) => {
       // Check if the file exists
       if (err) {
@@ -104,7 +111,7 @@ export default function processInput(filePath) {
             headers.includes(item)
           );
           if (!allHeadingExist) {
-            reject({
+            return reject({
               type: "FILE_ERROR_004",
               message: `CSV column headings are required: ${filePath}`,
             });
@@ -121,7 +128,14 @@ export default function processInput(filePath) {
           console.info(
             `Total rows: ${csvTotalCount}. \nError rows count: ${csvErrorCount}. \nError on row(s): [${csvErrorRows.join()}]`
           );
-          resolve(csvData);
+          if (csvData && csvData.length) {
+            resolve(csvData);
+          } else {
+            return reject({
+              type: "FILE_ERROR_005",
+              message: `No data to process: ${filePath}`,
+            });
+          }
         })
 
         // Error occured
