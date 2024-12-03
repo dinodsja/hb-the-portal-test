@@ -1,4 +1,5 @@
 import fileSystem from "fs";
+import fileSystemPath from "path";
 import { createObjectCsvWriter } from "csv-writer";
 
 export default function processOutput(data, filePath) {
@@ -24,7 +25,7 @@ export default function processOutput(data, filePath) {
     fileSystem.access(filePath, fileSystem.constants.W_OK, function (error) {
       if (error) {
         // Try to make it writable
-        fileSystem.chmod(dirPath, 0o777, (error) => {
+        fileSystem.chmod(fileSystemPath.dirname(filePath), 0o777, (error) => {
           if (error) {
             reject({
               type: "FILE_ERROR_013",
