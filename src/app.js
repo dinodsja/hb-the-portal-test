@@ -1,17 +1,27 @@
 import processInput from "./processInput.js";
 import processData from "./processData.js";
+import processOutput from "./processOutput.js";
 
-const defaultInput = "./input/hb_test.csv";
+const defaultInputPath = "./input/hb_test.csv";
+const defaultOutputPath = "./output/hb_test_sorted.csv";
 
 /**
  * Main App
  */
 const app = async () => {
-  processInput(defaultInput)
+  console.info("*** THE PORTAL TEST ***");
+  console.info("Input CSV:", defaultInputPath);
+  processInput(defaultInputPath)
     .then((inputData) => {
-      console.log("inputData", inputData);
       const outputData = processData(inputData);
-      console.log("outputData", outputData);
+      processOutput(outputData, defaultOutputPath)
+        .then(() => {
+          console.info(`\nSuccessfully completed`);
+          console.info(`Output file: ${defaultOutputPath}`);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     })
     .catch((error) => {
       console.error(error);
